@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchProducts, createProduct } from "../redux/productsSlice";
+import {
+  fetchProducts,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+} from "../redux/productsSlice";
 import type { RootState, AppDispatch } from "../redux/store";
 import ProductCard from "../components/ProductCard";
 import { toast } from "react-toastify";
@@ -10,6 +15,9 @@ const HomePage = () => {
   const { items, loading, error } = useSelector(
     (state: RootState) => state.products
   );
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newProduct, setNewProduct] = useState({
     title: "",
@@ -48,12 +56,24 @@ const HomePage = () => {
     if (!validateForm()) return;
 
     try {
-      await dispatch(
-        createProduct({
-          ...newProduct,
-          price: parseFloat(newProduct.price),
-        })
-      ).unwrap();
+      if (isEditing && editingId !== null) {
+        await dispatch(
+          updateProduct({
+            ...newProduct,
+            id: editingId,
+            price: parseFloat(newProduct.price),
+          })
+        ).unwrap();
+        toast.success("Product updated successfully!");
+      } else {
+        await dispatch(
+          createProduct({
+            ...newProduct,
+            price: parseFloat(newProduct.price),
+          })
+        ).unwrap();
+        toast.success("Product created successfully!");
+      }
 
       setIsModalOpen(false);
       setNewProduct({
@@ -63,12 +83,36 @@ const HomePage = () => {
         image: "",
         category: "",
       });
-
-      toast.success("Product created successfully!");
+      setIsEditing(false);
+      setEditingId(null);
     } catch (err) {
-      console.error("Failed to create product:", err);
-      toast.error("Failed to create product.");
+      console.error(err);
+      toast.error(
+        isEditing ? "Failed to update product." : "Failed to create product."
+      );
     }
+  };
+
+  const handleDelete = async (id: number) => {
+    try {
+      await dispatch(deleteProduct(id)).unwrap();
+      toast.success("Product deleted!");
+    } catch (err) {
+      toast.error("Failed to delete product.");
+    }
+  };
+
+  const handleEdit = (product: any) => {
+    setNewProduct({
+      title: product.title,
+      price: String(product.price),
+      description: product.description,
+      image: product.image,
+      category: product.category,
+    });
+    setEditingId(product.id);
+    setIsEditing(true);
+    setIsModalOpen(true);
   };
 
   return (
@@ -89,7 +133,12 @@ const HomePage = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {Array.isArray(items) &&
           items.map((product) => (
-            <ProductCard key={product.id} product={product} />
+            <ProductCard
+              key={product.id}
+              product={product}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
           ))}
       </div>
 
@@ -99,7 +148,7 @@ const HomePage = () => {
           <div className="bg-white/90 backdrop-blur-md rounded-xl shadow-xl p-6 w-full max-w-md relative border border-gray-200">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold text-gray-800">
-                Add New Product
+                {isEditing ? "Edit Product" : "Add New Product"}
               </h2>
               <button
                 onClick={() => setIsModalOpen(false)}
@@ -226,7 +275,7 @@ const HomePage = () => {
                   type="submit"
                   className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                 >
-                  Create Product
+                  {isEditing ? "Update Product" : "Create Product"}
                 </button>
               </div>
             </form>

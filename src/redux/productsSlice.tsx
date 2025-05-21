@@ -26,6 +26,33 @@ export const createProduct = createAsyncThunk(
     return response.data; // Returns the newly created product with ID
   }
 );
+
+export const deleteProduct = createAsyncThunk(
+  "products/deleteProduct",
+  async (productId: number) => {
+    await axios.delete(`https://fakestoreapi.com/products/${productId}`);
+    return productId; // Return the ID of the deleted product
+  }
+);
+
+export const updateProduct = createAsyncThunk(
+  "products/updateProduct",
+  async (productData: {
+    id: number;
+    title: string;
+    price: number;
+    description: string;
+    image: string;
+    category: string;
+  }) => {
+    const response = await axios.put(
+      `https://fakestoreapi.com/products/${productData.id}`,
+      productData
+    );
+    return response.data; // Returns the updated product
+  }
+);
+
 const productsSlice = createSlice({
   name: "products",
   initialState: {
@@ -60,6 +87,38 @@ const productsSlice = createSlice({
       .addCase(createProduct.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || "Failed to create product";
+      })
+      .addCase(deleteProduct.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteProduct.fulfilled, (state, action) => {
+        state.loading = false;
+        state.items = state.items.filter(
+          (product) => product.id !== action.payload
+        ) // Remove deleted product from the list
+
+      })
+      .addCase(deleteProduct.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || "Failed to delete product";
+      })
+      .addCase(updateProduct.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateProduct.fulfilled, (state, action) => {
+        state.loading = false;
+        const index = state.items.findIndex(
+          (product) => product.id === action.payload.id
+        );
+        if (index !== -1) {
+          state.items[index] = action.payload; // Update the product in the list
+        }
+      })
+      .addCase(updateProduct.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || "Failed to update product";
       });
   },
 });
