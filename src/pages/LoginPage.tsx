@@ -15,7 +15,7 @@ const LoginPage = () => {
     if (username && password) {
       // Simulate API call
       try {
-        dispatch(login({ username }));
+        dispatch(login(username));
         toast.success('Login successful!');
         navigate('/');
       } catch (error) {

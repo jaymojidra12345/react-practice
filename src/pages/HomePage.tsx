@@ -9,7 +9,7 @@ import {
 import type { RootState, AppDispatch } from "../redux/store";
 import ProductCard from "../components/ProductCard";
 import { toast } from "react-toastify";
-
+import type { Product } from "../types/product";
 const HomePage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { items, loading, error } = useSelector(
@@ -219,7 +219,7 @@ const HomePage = () => {
       {error && <p className="text-red-500">{error}</p>}
 
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {paginatedProducts.map((product) => (
+        {paginatedProducts.map((product:Product) => (
           <ProductCard
             key={product.id}
             product={product}

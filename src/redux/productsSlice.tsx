@@ -1,8 +1,21 @@
 // redux/productsSlice.ts
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import type { Product } from "../types/product";
 
-export const fetchProducts = createAsyncThunk(
+
+interface ProductsState {
+  items: Product[];
+  loading: boolean;
+  error: string | null;
+}
+
+const initialState: ProductsState = {
+  items: [],
+  loading: false,
+  error: null,
+};
+export const fetchProducts = createAsyncThunk<Product[]>(
   "products/fetchProducts",
   async () => {
     const response = await axios.get("https://fakestoreapi.com/products");
@@ -55,11 +68,7 @@ export const updateProduct = createAsyncThunk(
 
 const productsSlice = createSlice({
   name: "products",
-  initialState: {
-    items: [],
-    loading: false,
-    error: null,
-  },
+  initialState:initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
