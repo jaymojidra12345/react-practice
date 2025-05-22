@@ -155,7 +155,7 @@ const HomePage = () => {
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Products</h1>
+        {/* <h1 className="text-2xl font-bold">Products</h1> */}
         <button
           onClick={() => setIsModalOpen(true)}
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition"
