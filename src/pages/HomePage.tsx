@@ -15,8 +15,13 @@ const HomePage = () => {
   const { items, loading, error } = useSelector(
     (state: RootState) => state.products
   );
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const allCategories = ["All", ...new Set(items.map((item) => item.category))];
+
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newProduct, setNewProduct] = useState({
@@ -27,10 +32,16 @@ const HomePage = () => {
     category: "",
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8; // You can adjust this number
 
   useEffect(() => {
     dispatch(fetchProducts());
   }, [dispatch]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, priceRange, selectedCategory]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -91,6 +102,9 @@ const HomePage = () => {
         isEditing ? "Failed to update product." : "Failed to create product."
       );
     }
+
+    setCurrentPage(1); // Show the first page immediately after adding
+
   };
 
   const handleDelete = async (id: number) => {
@@ -115,6 +129,29 @@ const HomePage = () => {
     setIsModalOpen(true);
   };
 
+  const filteredProducts = [...items]
+  .sort((a, b) => b.id - a.id)
+  .filter((product) => {
+    const matchesSearch = product.title
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
+
+    const matchesPrice =
+      product.price >= priceRange[0] && product.price <= priceRange[1];
+
+    const matchesCategory =
+      selectedCategory === "All" || product.category === selectedCategory;
+
+    return matchesSearch && matchesPrice && matchesCategory;
+  });
+
+
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const paginatedProducts = filteredProducts.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-4">
@@ -127,20 +164,88 @@ const HomePage = () => {
         </button>
       </div>
 
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+        {/* Search */}
+        <input
+          type="text"
+          placeholder="Search products..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full md:w-1/2 p-2 border border-gray-300 rounded"
+        />
+
+        {/* Filters: Category + Price */}
+        <div className="flex items-center gap-4 flex-wrap">
+          {/* Category Filter */}
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="p-2 border border-gray-300 rounded"
+          >
+            {allCategories.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </select>
+
+          {/* Price Filter (Unchanged) */}
+          <div className="flex items-center gap-2">
+            <label className="text-sm text-gray-700">Min:</label>
+            <input
+              type="number"
+              value={priceRange[0]}
+              onChange={(e) =>
+                setPriceRange([parseFloat(e.target.value) || 0, priceRange[1]])
+              }
+              className="w-20 p-1 border rounded"
+              min={0}
+            />
+            <label className="text-sm text-gray-700">Max:</label>
+            <input
+              type="number"
+              value={priceRange[1]}
+              onChange={(e) =>
+                setPriceRange([priceRange[0], parseFloat(e.target.value) || 0])
+              }
+              className="w-20 p-1 border rounded"
+              min={0}
+            />
+          </div>
+        </div>
+      </div>
+
       {loading && <p>Loading...</p>}
       {error && <p className="text-red-500">{error}</p>}
 
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {Array.isArray(items) &&
-          items.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
-          ))}
+        {paginatedProducts.map((product) => (
+          <ProductCard
+            key={product.id}
+            product={product}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
+        ))}
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex justify-center mt-6 space-x-2">
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <button
+              key={page}
+              onClick={() => setCurrentPage(page)}
+              className={`px-3 py-1 rounded ${
+                page === currentPage
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }`}
+            >
+              {page}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Create Product Modal */}
       {isModalOpen && (
