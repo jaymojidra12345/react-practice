@@ -10,7 +10,7 @@ const ProductCard = ({
   onDelete: (id: number) => void;
 }) => {
   return (
-    <div className="border rounded-lg p-4 shadow hover:shadow-md transition relative">
+    <div className=" p-4  transition relative">
       <div className="absolute top-2 right-2 flex gap-2">
         <button
           onClick={() => onEdit(product)}

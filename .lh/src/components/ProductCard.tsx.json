@@ -1,0 +1,26 @@
+{
+    "sourceFile": "src/components/ProductCard.tsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 2,
+            "patches": [
+                {
+                    "date": 1747978758385,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1747979505581,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -9,9 +9,9 @@\n   onEdit: (product: any) => void;\r\n   onDelete: (id: number) => void;\r\n }) => {\r\n   return (\r\n-    <div className=\"border rounded-lg p-4 shadow hover:shadow-md transition relative\">\r\n+    <div className=\" p-4 shadow hover:shadow-md transition relative\">\r\n       <div className=\"absolute top-2 right-2 flex gap-2\">\r\n         <button\r\n           onClick={() => onEdit(product)}\r\n           className=\"text-blue-600 hover:text-blue-800\"\r\n"
+                },
+                {
+                    "date": 1747979543925,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -9,9 +9,9 @@\n   onEdit: (product: any) => void;\r\n   onDelete: (id: number) => void;\r\n }) => {\r\n   return (\r\n-    <div className=\" p-4 shadow hover:shadow-md transition relative\">\r\n+    <div className=\" p-4  transition relative\">\r\n       <div className=\"absolute top-2 right-2 flex gap-2\">\r\n         <button\r\n           onClick={() => onEdit(product)}\r\n           className=\"text-blue-600 hover:text-blue-800\"\r\n"
+                }
+            ],
+            "date": 1747978758385,
+            "name": "Commit-0",
+            "content": "import { FaTrash, FaEdit } from \"react-icons/fa\";\r\n\r\nconst ProductCard = ({\r\n  product,\r\n  onEdit,\r\n  onDelete,\r\n}: {\r\n  product: any;\r\n  onEdit: (product: any) => void;\r\n  onDelete: (id: number) => void;\r\n}) => {\r\n  return (\r\n    <div className=\"border rounded-lg p-4 shadow hover:shadow-md transition relative\">\r\n      <div className=\"absolute top-2 right-2 flex gap-2\">\r\n        <button\r\n          onClick={() => onEdit(product)}\r\n          className=\"text-blue-600 hover:text-blue-800\"\r\n        >\r\n          <FaEdit />\r\n        </button>\r\n        <button\r\n          onClick={() => onDelete(product.id)}\r\n          className=\"text-red-600 hover:text-red-800\"\r\n        >\r\n          <FaTrash />\r\n        </button>\r\n      </div>\r\n      <img\r\n        src={product.image}\r\n        alt={product.title}\r\n        className=\"w-full h-40 object-contain mb-2 pt-3 \"\r\n      />\r\n      <h2 className=\"font-semibold text-lg\">{product.title}</h2>\r\n      <p className=\"text-gray-600\">${product.price}</p>\r\n    </div>\r\n  );\r\n};\r\n\r\nexport default ProductCard;\r\n"
+        }
+    ]
+}

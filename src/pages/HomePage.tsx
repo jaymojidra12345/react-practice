@@ -24,6 +24,8 @@ const HomePage = () => {
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<number | null>(null);
   const [newProduct, setNewProduct] = useState({
     title: "",
     price: "",
@@ -108,11 +110,21 @@ const HomePage = () => {
   };
 
   const handleDelete = async (id: number) => {
+    setProductToDelete(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (productToDelete === null) return;
+    
     try {
-      await dispatch(deleteProduct(id)).unwrap();
+      await dispatch(deleteProduct(productToDelete)).unwrap();
       toast.success("Product deleted!");
-    } catch (err) {
+    } catch (error) {
       toast.error("Failed to delete product.");
+    } finally {
+      setIsDeleteModalOpen(false);
+      setProductToDelete(null);
     }
   };
 
@@ -220,12 +232,14 @@ const HomePage = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {paginatedProducts.map((product:Product) => (
-          <ProductCard
-            key={product.id}
-            product={product}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
+          <div className="border border-red-500">
+            <ProductCard
+              key={product.id}
+              product={product}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
+          </div>
         ))}
       </div>
 
@@ -384,6 +398,38 @@ const HomePage = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 bg-white/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white/90 backdrop-blur-md rounded-xl shadow-xl p-6 w-full max-w-md relative border border-gray-200">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-gray-800">Confirm Delete</h2>
+              <button
+                onClick={() => setIsDeleteModalOpen(false)}
+                className="text-gray-500 hover:text-gray-700 text-xl font-bold"
+              >
+                ✕
+              </button>
+            </div>
+            <p className="text-gray-600 mb-6">Are you sure you want to delete this product?</p>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setIsDeleteModalOpen(false)}
+                className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50"
+              >
+                No
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+              >
+                Yes, Delete
+              </button>
+            </div>
           </div>
         </div>
       )}
