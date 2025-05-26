@@ -10,7 +10,7 @@ import type { RootState, AppDispatch } from "../redux/store";
 import ProductCard from "../components/ProductCard";
 import { toast } from "react-toastify";
 import type { Product } from "../types/product";
-
+import { Helmet } from "react-helmet";
 const HomePage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { items, loading, error } = useSelector(
@@ -165,6 +165,9 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      <Helmet>
+        <title>Products | Vite </title>
+      </Helmet>
       {/* Header Section */}
       <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200/50 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
