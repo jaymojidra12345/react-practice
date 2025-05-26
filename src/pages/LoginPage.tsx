@@ -45,7 +45,7 @@ const LoginPage = () => {
       }
     } catch (validationError: any) {
       // Collect Yup errors
-      const fieldErrors: { username?: string; password?: string } = {};
+const fieldErrors: { [key: string]: string } = {};
       validationError.inner.forEach((err: any) => {
         if (err.path) fieldErrors[err.path] = err.message;
       });
