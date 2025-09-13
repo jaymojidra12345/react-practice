@@ -11,11 +11,15 @@ import ProductCard from "../components/ProductCard";
 import { toast } from "react-toastify";
 import type { Product } from "../types/product";
 import { Helmet } from "react-helmet";
+import { useAuth0 } from "@auth0/auth0-react";
+import LogoutButton from "../components/LogoutButton";
+import { Link } from "react-router-dom";
 const HomePage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { items, loading, error } = useSelector(
     (state: RootState) => state.products
   );
+  const { user } = useAuth0();
   const [selectedCategory, setSelectedCategory] = useState("All");
   const allCategories = ["All", ...new Set(items.map((item) => item.category))];
 
@@ -171,34 +175,59 @@ const HomePage = () => {
       {/* Header Section */}
       <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200/50 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                Product Gallery
-              </h1>
-              <p className="text-gray-600 mt-1">
-                Discover and manage your amazing products
-              </p>
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div className="flex-1">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                    Product Gallery
+                  </h1>
+                  <p className="text-gray-600 mt-1">
+                    Welcome back, {user?.name || 'User'}! Manage your amazing products
+                  </p>
+                </div>
+                <button
+                  onClick={() => setIsModalOpen(true)}
+                  className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium rounded-xl hover:from-indigo-700 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl"
+                >
+                  <svg
+                    className="w-5 h-5 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                    />
+                  </svg>
+                  Add Product
+                </button>
+              </div>
             </div>
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium rounded-xl hover:from-indigo-700 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl"
-            >
-              <svg
-                className="w-5 h-5 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+            
+            {/* User Profile Section */}
+            <div className="flex items-center space-x-4">
+              <Link
+                to="/profile"
+                className="flex items-center space-x-3 hover:bg-gray-50 rounded-lg p-2 transition-colors duration-200"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                />
-              </svg>
-              Add Product
-            </button>
+                {user?.picture && (
+                  <img
+                    src={user.picture}
+                    alt={user.name || 'User'}
+                    className="w-10 h-10 rounded-full border-2 border-indigo-200"
+                  />
+                )}
+                <div className="hidden sm:block">
+                  <p className="text-sm font-medium text-gray-900">{user?.name}</p>
+                  <p className="text-xs text-gray-500">{user?.email}</p>
+                </div>
+              </Link>
+              <LogoutButton />
+            </div>
           </div>
         </div>
       </div>

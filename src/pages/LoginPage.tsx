@@ -1,126 +1,60 @@
-import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useEffect } from "react";
+import { useAuth0 } from "@auth0/auth0-react";
 import { useNavigate } from "react-router-dom";
-import { login } from "../redux/authSlice";
-import { toast } from "react-toastify";
-import * as Yup from "yup";
 import { Helmet } from "react-helmet";
-
-const validationSchema = Yup.object().shape({
-  username: Yup.string()
-    .required("Username is required")
-    .min(4, "Username must be at least 4 characters"),
-  password: Yup.string()
-    .required("Password is required")
-    .min(8, "Password must be at least 8 characters")
-    .matches(/[0-9]/, "Password must contain a number")
-    .matches(/[a-zA-Z]/, "Password must contain a letter"),
-});
+import LoginButton from "../components/LoginButton";
+import DebugAuth from "../components/DebugAuth";
 
 const LoginPage = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [errors, setErrors] = useState<{
-    username?: string;
-    password?: string;
-  }>({});
-  const dispatch = useDispatch();
+  const { isAuthenticated, isLoading } = useAuth0();
   const navigate = useNavigate();
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // Validate with Yup
-    try {
-      await validationSchema.validate(
-        { username, password },
-        { abortEarly: false }
-      );
-      setErrors({}); // Clear errors
-
-      // Existing login logic
-      if (username && password) {
-        try {
-          dispatch(login(username));
-          toast.success("Login successful!");
-          navigate("/");
-        } catch (error) {
-          toast.error("Login failed. Please try again.");
-        }
-      } else {
-        toast.warning("Please enter both username and password");
-      }
-    } catch (validationError: any) {
-      // Collect Yup errors
-      const fieldErrors: { [key: string]: string } = {};
-      validationError.inner.forEach((err: any) => {
-        if (err.path) fieldErrors[err.path] = err.message;
-      });
-      setErrors(fieldErrors);
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/");
     }
-  };
+  }, [isAuthenticated, navigate]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-indigo-200">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-indigo-200">
       <Helmet>
-        <title>Login | Vite </title>
-      
+        <title>Login | React Auth Practice</title>
       </Helmet>
-      <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-sm">
-        <h2 className="text-2xl font-bold mb-6 text-center text-indigo-700">
-          Login
+      <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
+        <h2 className="text-3xl font-bold mb-6 text-center text-indigo-700">
+          Welcome
         </h2>
-        <form onSubmit={handleLogin} noValidate>
-          <div className="mb-4">
-            <label
-              htmlFor="username"
-              className="block text-gray-700 font-medium mb-1"
-            >
-              Username
-            </label>
-            <input
-              id="username"
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400 ${
-                errors.username ? "border-red-500" : "border-gray-300"
-              }`}
-              autoComplete="username"
-            />
-            {errors.username && (
-              <div className="text-red-500 text-sm mt-1">{errors.username}</div>
-            )}
+        <p className="text-gray-600 text-center mb-8">
+          Sign in to access your dashboard and manage your account securely.
+        </p>
+        
+        <div className="space-y-4">
+          <LoginButton />
+          
+          <div className="text-center">
+            <p className="text-sm text-gray-500">
+              Secure authentication powered by Auth0
+            </p>
           </div>
-          <div className="mb-4">
-            <label
-              htmlFor="password"
-              className="block text-gray-700 font-medium mb-1"
-            >
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400 ${
-                errors.password ? "border-red-500" : "border-gray-300"
-              }`}
-              autoComplete="current-password"
-            />
-            {errors.password && (
-              <div className="text-red-500 text-sm mt-1">{errors.password}</div>
-            )}
+        </div>
+        
+        <div className="mt-8 pt-6 border-t border-gray-200">
+          <div className="text-xs text-gray-400 text-center">
+            <p>🔐 Your data is protected with enterprise-grade security</p>
+            <p>🚀 Single sign-on with multiple providers</p>
+            <p>✨ Seamless authentication experience</p>
           </div>
-          <button
-            type="submit"
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 rounded-md transition-colors duration-200"
-          >
-            Login
-          </button>
-        </form>
+        </div>
       </div>
+      <DebugAuth />
     </div>
   );
 };
