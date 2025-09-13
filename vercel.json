@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
+  "env": {
+    "VITE_AUTH0_DOMAIN": "dev-d1hv17m7xpy4f4dt.us.auth0.com",
+    "VITE_AUTH0_CLIENT_ID": "7Ms8Fy4UviPrL8kLYqiLFUT25Jc3DA8o"
+  }
+}
